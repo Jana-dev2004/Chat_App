@@ -25,17 +25,21 @@ class _SignupState extends State<Signup> {
       try{
       UserCredential userCredential=await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       String id=randomAlphaNumeric(10);
+        String user=emailcontroller.text.replaceAll("@gmail.com", "");
+        String firstletter=user.substring(0,1).toUpperCase();
+       String updateuser=user.replaceFirst(user[0], user[0].toUpperCase());
       Map<String,dynamic>details={
        "Name":namecontroller.text,
        "email":emailcontroller.text,
-       "user":emailcontroller.text.replaceAll("@gmail.com", ""),
+       "Searchkey":firstletter,
+       "user":updateuser,
        "id":id
       };
       await Database().add(details, id);
-      await Sharedpreference().saveuserid(id);
-      await Sharedpreference().saveuseremail(emailcontroller.text);
-      await Sharedpreference().saveusername(emailcontroller.text.replaceAll("@gmail.com", ""));
-      await  Sharedpreference().saveuserdisplay(namecontroller.text);
+      await Sharedpreferencehelper().saveuserid(id);
+      await Sharedpreferencehelper().saveuseremail(emailcontroller.text);
+      await Sharedpreferencehelper().saveusername(emailcontroller.text.replaceAll("@gmail.com", ""));
+      await  Sharedpreferencehelper().saveuserdisplay(namecontroller.text);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registered Successfully")));
       Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>Home()));
       }on FirebaseAuthException catch(e)

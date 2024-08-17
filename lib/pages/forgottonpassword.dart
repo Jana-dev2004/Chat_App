@@ -1,81 +1,35 @@
-import 'package:chat_app/pages/home.dart';
-import 'package:chat_app/services/database.dart';
-import 'package:chat_app/services/sharedpreference.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class Signin extends StatefulWidget {
-  const Signin({super.key});
+import "package:chat_app/pages/signin.dart";
+import "package:chat_app/pages/signup.dart";
+import "package:firebase_auth/firebase_auth.dart";
+import "package:firebase_cloud_firestore/firebase_cloud_firestore.dart";
+import "package:flutter/material.dart";
+class Forgottonpassword extends StatefulWidget {
+  const Forgottonpassword({super.key});
 
   @override
-  State<Signin> createState() => _SigninState();
+  State<Forgottonpassword> createState() => _ForgottonpasswordState();
 }
 
-class _SigninState extends State<Signin> {
+class _ForgottonpasswordState extends State<Forgottonpassword> {
+  String email="";
+  TextEditingController femail=TextEditingController();
   final _formkey = GlobalKey<FormState>();
-  TextEditingController email = TextEditingController();
-  TextEditingController pass = TextEditingController();
-
-  userlogin() async {
-    try {
-      // Sign in with email and password
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email.text,
-        password: pass.text,
-      );
-
-      // Query Firestore for user data based on email
-      QuerySnapshot querySnapshot = await Database().getuserbyemail(email.text);
-      String name = "${querySnapshot.docs[0]['Name']}";
-      String username = "${querySnapshot.docs[0]['user']}";
-      String id = "${querySnapshot.docs[0]['id']}";
-
-      // Save user data to shared preferences
-      await Sharedpreferencehelper().saveusername(username);
-      await Sharedpreferencehelper().saveuserid(id);
-      await Sharedpreferencehelper().saveuserdisplay(name);
-
-      // Navigate to the Home page
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Home()),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == "user-not-found") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "No user found for that email",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          ),
-        );
-      } else if (e.code == "wrong-password") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Wrong Password",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-          ),
-        );
+  sendmail()async
+  {
+    try{
+       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Email has been Sucessfully",style: TextStyle(fontSize: 18),)));
+    }on FirebaseAuthException catch (e)
+    {
+      if(e.code=="user-not-found")
+      {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("No user found this email",style: TextStyle(fontSize: 18),)));
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  Scaffold(
       body: Container(
         child: Stack(
           children: [
@@ -101,7 +55,7 @@ class _SigninState extends State<Signin> {
                 children: [
                   Center(
                     child: Text(
-                      "Sign In",
+                      "Password Recovery",
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -111,7 +65,7 @@ class _SigninState extends State<Signin> {
                   ),
                   Center(
                     child: Text(
-                      "Log in to your Account",
+                      "Enter the email",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -159,7 +113,7 @@ class _SigninState extends State<Signin> {
                                   ),
                                 ),
                                 child: TextFormField(
-                                  controller: email,
+                                  controller: femail,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
                                     prefixIcon: Icon(Icons.email),
@@ -175,59 +129,16 @@ class _SigninState extends State<Signin> {
                                   },
                                 ),
                               ),
-                              SizedBox(height: 20),
-                              // Password Field
-                              Text(
-                                "Password",
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              Container(
-                                padding: EdgeInsets.only(left: 10),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    width: 1.0,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                child: TextFormField(
-                                  controller: pass,
-                                  obscureText: true,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    prefixIcon: Icon(Icons.password),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your password';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              // Forgot Password Text
-                              Container(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                  "Forgot Password?",
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w100,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
+                             
                               SizedBox(height: 20),
                               // Sign In Button
                               GestureDetector(
                                 onTap: () {
                                   if (_formkey.currentState!.validate()) {
-                                    userlogin();
+                                    setState(() {
+                                      email=femail.text;
+                                    });
+                                    sendmail();
                                   }
                                 },
                                 child: Center(
@@ -246,7 +157,7 @@ class _SigninState extends State<Signin> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                              "Sign In",
+                                              "Send Email",
                                               style: TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w100,
@@ -279,12 +190,22 @@ class _SigninState extends State<Signin> {
                           color: Colors.black,
                         ),
                       ),
-                      Text(
-                        " Sign up",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0XFF7f30fe),
+                      GestureDetector(
+                        onTap: (){
+                            Navigator.push<void>(
+    context,
+    MaterialPageRoute<void>(
+      builder: (BuildContext context) => const Signup(),
+    ),
+  );
+                        },
+                        child: Text(
+                          " Sign up",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0XFF7f30fe),
+                          ),
                         ),
                       ),
                     ],
@@ -296,5 +217,6 @@ class _SigninState extends State<Signin> {
         ),
       ),
     );
+    
   }
 }

@@ -1,3 +1,5 @@
+import 'package:chat_app/services/database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -8,6 +10,33 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool search=false;
+  var queryresult=[];
+  var tempsearchstore=[];
+  initialsearch(value)
+  {
+    if(value.length==0)
+    {
+      setState(() {
+        queryresult=[];
+        tempsearchstore=[];
+      });
+    }
+    setState(() {
+      search=true;
+    });
+    var capitalize=value.substring(0,1).toUpperCase()+value.substring(1);
+    if(queryresult.length==0&&value.length==1)
+    {
+      Database().search(value).then((QuerySnapshot docs)
+      {
+        for(int i=0;i<docs.docs.length;i++)
+        {
+            
+        }
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,18 +49,33 @@ class _HomeState extends State<Home> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Chat App",style:TextStyle(
+                search?Expanded(child: TextField(
+                  style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color:Colors.white),
+                  decoration: InputDecoration(
+                    hintText: "Search",
+                    hintStyle: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color:Colors.white),
+                    border: InputBorder.none
+                  ),
+                )):Text("Chat App",style:TextStyle(
                     fontSize: 25,fontWeight: FontWeight.bold,
                     color:Color(0xffc199cd),
                   )),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 2.0),
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(6)
+                  GestureDetector(
+                    onTap: (){
+                      search=true;
+                      setState(() {
+                        
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 2.0),
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(6)
+                      ),
+                      padding: EdgeInsets.all(10),
+                      child: Icon(Icons.search,color: Color(0xffc199cd),),
                     ),
-                    padding: EdgeInsets.all(10),
-                    child: Icon(Icons.search,color: Color(0xffc199cd),),
                   )
                 ],
               ),

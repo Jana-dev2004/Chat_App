@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-class Sharedpreference
+class Sharedpreferencehelper
 {
   static String useridkey="USERIDKEY";
    static String userNamekey="USERNAMEKEY";

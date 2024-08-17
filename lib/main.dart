@@ -1,5 +1,6 @@
 import 'package:chat_app/firebase_options.dart';
 import 'package:chat_app/pages/chatpage.dart';
+import 'package:chat_app/pages/forgottonpassword.dart';
 import 'package:chat_app/pages/home.dart';
 import 'package:chat_app/pages/signin.dart';
 import 'package:chat_app/pages/signup.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Signin(),
+      home:Home(),
     );
   }
 }
